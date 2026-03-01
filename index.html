@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make Your Poster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='24' fill='%237C3AED'/%3E%3Cpath d='M28 92V28h14l18 27 18-27h14v64H78V53L60 79 42 53v39H28z' fill='white'/%3E%3C/svg%3E"
+      type="image/svg+xml"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#080B18",
+              neon: "#7C3AED",
+              cyan: "#06B6D4",
+              rose: "#F43F5E",
+            },
+            boxShadow: {
+              glow: "0 0 40px rgba(124,58,237,.25)",
+              card: "0 10px 35px rgba(2,8,23,.35)",
+            },
+            animation: {
+              floaty: "floaty 6s ease-in-out infinite",
+              pulseSlow: "pulseSlow 3s ease-in-out infinite",
+              gradientX: "gradientX 12s ease infinite",
+            },
+            keyframes: {
+              floaty: {
+                "0%,100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-8px)" },
+              },
+              pulseSlow: {
+                "0%,100%": { opacity: ".65" },
+                "50%": { opacity: "1" },
+              },
+              gradientX: {
+                "0%,100%": { backgroundPosition: "0% 50%" },
+                "50%": { backgroundPosition: "100% 50%" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      :root {
+        --bg-base: #080b18;
+        --text-primary: #e2e8f0;
+        --text-muted: #94a3b8;
+        --surface-card: rgba(15, 23, 42, 0.65);
+        --surface-soft: rgba(2, 6, 23, 0.45);
+        --surface-strong: rgba(2, 6, 23, 0.78);
+        --border-color: rgba(255, 255, 255, 0.16);
+        --nav-link: #cbd5e1;
+        --nav-link-hover-bg: rgba(255, 255, 255, 0.13);
+        --panel-input-bg: rgba(2, 6, 23, 0.6);
+        --panel-input-text: #e2e8f0;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--bg-base);
+        color: var(--text-primary);
+      }
+      .bg-hero {
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(124, 58, 237, 0.25),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 85% 0%,
+            rgba(6, 182, 212, 0.25),
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at 100% 100%,
+            rgba(244, 63, 94, 0.2),
+            transparent 28%
+          ),
+          linear-gradient(145deg, #05060c 0%, #080b18 42%, #0f172a 100%);
+        background-size: 200% 200%;
+      }
+      .grid-noise::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 30%,
+          transparent 75%
+        );
+        pointer-events: none;
+      }
+      .range {
+        accent-color: #7c3aed;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(40px);
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .glass-shine {
+        position: relative;
+        isolation: isolate;
+      }
+      .glass-shine::after {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        border-radius: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        pointer-events: none;
+      }
+
+      body.theme-light {
+        --bg-base: #f8fafc;
+        --text-primary: #0f172a;
+        --text-muted: #334155;
+        --surface-card: rgba(255, 255, 255, 0.82);
+        --surface-soft: rgba(241, 245, 249, 0.95);
+        --surface-strong: rgba(255, 255, 255, 0.9);
+        --border-color: rgba(100, 116, 139, 0.4);
+        --nav-link: #0f172a;
+        --nav-link-hover-bg: rgba(30, 41, 59, 0.08);
+        --panel-input-bg: rgba(241, 245, 249, 0.95);
+        --panel-input-text: #0f172a;
+      }
+      body.theme-light .bg-hero {
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(124, 58, 237, 0.2),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 85% 0%,
+            rgba(6, 182, 212, 0.2),
+            transparent 32%
+          ),
+          linear-gradient(145deg, #ffffff 0%, #eef2ff 50%, #e2e8f0 100%);
+      }
+      body.theme-light .glass-shine {
+        background: var(--surface-card) !important;
+        border-color: var(--border-color) !important;
+      }
+      body.theme-light .glass-shine::after {
+        border-color: var(--border-color);
+      }
+      body.theme-light .text-slate-100,
+      body.theme-light #previewInfo,
+      body.theme-light .text-slate-400,
+      body.theme-light .text-slate-300,
+      body.theme-light .text-slate-200 {
+        color: var(--text-muted) !important;
+      }
+      body.theme-light .text-cyan-100,
+      body.theme-light .text-cyan-200,
+      body.theme-light .text-cyan-200\/90,
+      body.theme-light .text-violet-100 {
+        color: #0f172a !important;
+      }
+      body.theme-light #runtimeAlert {
+        border-color: rgba(146, 64, 14, 0.35);
+      }
+      body.theme-light .grid-noise::before {
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+      }
+      body.theme-light .theme-toggle-label-dark {
+        display: none;
+      }
+      body:not(.theme-light) .theme-toggle-label-light {
+        display: none;
+      }
+      .app-header {
+        background: var(--surface-strong) !important;
+        border-color: var(--border-color) !important;
+      }
+      .top-nav-link {
+        color: var(--nav-link) !important;
+      }
+      .top-nav-link:hover {
+        background: var(--nav-link-hover-bg) !important;
+      }
+      .theme-toggle-btn {
+        border-color: var(--border-color) !important;
+        background: var(--surface-soft) !important;
+        color: var(--text-primary) !important;
+      }
+      .panel-card {
+        background: var(--surface-card) !important;
+        border-color: var(--border-color) !important;
+      }
+      .soft-card {
+        background: var(--surface-soft) !important;
+        border-color: var(--border-color) !important;
+      }
+      .panel-input {
+        background: var(--panel-input-bg) !important;
+        color: var(--panel-input-text) !important;
+        border-color: var(--border-color) !important;
+      }
+      .muted-text {
+        color: var(--text-muted) !important;
+      }
+      .text-primary-token {
+        color: var(--text-primary) !important;
+      }
+      .text-muted-token {
+        color: var(--text-muted) !important;
+      }
+      .control-button {
+        color: var(--text-primary) !important;
+      }
+      body.theme-light .hero-badge {
+        color: #1e293b !important;
+        border-color: rgba(100, 116, 139, 0.45) !important;
+        background: rgba(255, 255, 255, 0.75) !important;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-ink text-slate-100 selection:bg-neon/40">
+    <header
+      class="app-header sticky top-0 z-30 border-b border-white/10 bg-slate-950/65 backdrop-blur-md"
+    >
+      <div
+        class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-8 lg:px-10"
+      >
+        <a
+          href="#top"
+          class="text-primary-token text-sm font-black tracking-wide sm:text-base"
+          >Make Your Poster</a
+        >
+        <nav class="flex items-center gap-2 sm:gap-4">
+          <a
+            href="#sobre"
+            class="top-nav-link rounded-lg px-2 py-1 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+            >Sobre mim</a
+          >
+          <a
+            href="#contato"
+            class="top-nav-link rounded-lg px-2 py-1 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+            >Contato</a
+          >
+          <a
+            href="#faq"
+            class="top-nav-link rounded-lg px-2 py-1 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm"
+            >FAQ</a
+          >
+          <button
+            id="themeToggleBtn"
+            type="button"
+            class="theme-toggle-btn inline-flex items-center gap-1 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/15"
+            aria-label="Alternar modo claro e escuro"
+          >
+            <span class="theme-toggle-label-dark">🌙 Escuro</span>
+            <span class="theme-toggle-label-light">☀️ Claro</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="relative overflow-hidden bg-hero animate-gradientX">
+      <div id="top"></div>
+      <div class="orb -left-16 -top-12 h-44 w-44 bg-neon/70"></div>
+      <div class="orb -right-10 top-1/3 h-56 w-56 bg-cyan/60"></div>
+      <div
+        class="orb bottom-2 left-1/2 h-48 w-48 -translate-x-1/2 bg-rose/50"
+      ></div>
+      <div class="grid-noise absolute inset-0"></div>
+      <section
+        class="relative mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-8 lg:px-10"
+      >
+        <header
+          class="mb-10 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center"
+        >
+          <div>
+            <p
+              class="hero-badge inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200"
+            >
+              <span
+                class="h-2 w-2 rounded-full bg-cyan animate-pulseSlow"
+              ></span>
+              Editor avançado de posters
+            </p>
+            <h1
+              class="text-primary-token mt-3 text-3xl font-black tracking-tight sm:text-5xl"
+            >
+              Make Your Poster
+            </h1>
+            <p class="mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
+              Transforme uma única imagem em um poster gigante, dividido em até
+              6 páginas, com edição visual profissional e exportação compactada.
+            </p>
+          </div>
+          <button
+            id="heroUploadBtn"
+            class="group rounded-2xl bg-gradient-to-r from-neon to-cyan px-6 py-3 text-sm font-bold text-white shadow-glow transition hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-cyan/70"
+          >
+            Upload (JPG ou PNG)
+          </button>
+        </header>
+
+        <section class="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+          <article
+            class="panel-card glass-shine rounded-3xl border border-white/15 bg-slate-900/40 p-4 shadow-card backdrop-blur-md sm:p-6"
+          >
+            <h2 class="text-primary-token text-lg font-bold sm:text-xl">
+              Como funciona
+            </h2>
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+              <div
+                class="rounded-2xl border border-white/10 bg-white/5 p-4 animate-floaty"
+              >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-cyan-200"
+                >
+                  1. Upload
+                </p>
+                <p class="mt-2 text-sm text-slate-200">
+                  Envie sua arte em JPG ou PNG e veja preview instantâneo.
+                </p>
+              </div>
+              <div
+                class="rounded-2xl border border-white/10 bg-white/5 p-4 animate-floaty"
+                style="animation-delay: 0.3s"
+              >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-cyan-200"
+                >
+                  2. Ajustes
+                </p>
+                <p class="mt-2 text-sm text-slate-200">
+                  Aplique nitidez, contraste, saturação, margens e orientação.
+                </p>
+              </div>
+              <div
+                class="rounded-2xl border border-white/10 bg-white/5 p-4 animate-floaty"
+                style="animation-delay: 0.6s"
+              >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-cyan-200"
+                >
+                  3. Exportação
+                </p>
+                <p class="mt-2 text-sm text-slate-200">
+                  Gere em JPG, PNG ou PDF e faça download compactado.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-black/30"
+            >
+              <canvas
+                id="previewCanvas"
+                class="h-[320px] w-full bg-gradient-to-br from-slate-950 to-slate-900"
+              ></canvas>
+            </div>
+            <p id="previewInfo" class="mt-2 text-xs text-slate-400">
+              Faça upload para iniciar a pré-visualização.
+            </p>
+            <p id="processingInfo" class="mt-1 text-[11px] text-cyan-200/90">
+              Filtros ativos: nenhum (padrão)
+            </p>
+
+            <div
+              class="soft-card mt-5 rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+            >
+              <div
+                class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                >
+                  Ajuste individual por página
+                </p>
+                <p id="pageEditorInfo" class="text-[11px] text-cyan-200/90">
+                  Selecione uma página e arraste para reposicionar o crop.
+                </p>
+              </div>
+
+              <div id="pageSelector" class="mb-3 flex flex-wrap gap-2"></div>
+
+              <div class="mb-2 flex justify-end">
+                <button
+                  id="undoPageCropBtn"
+                  type="button"
+                  class="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                >
+                  Desfazer ajuste da página
+                </button>
+              </div>
+
+              <div
+                class="overflow-hidden rounded-xl border border-white/10 bg-black/40"
+              >
+                <canvas
+                  id="pageEditorCanvas"
+                  class="h-[210px] w-full touch-none bg-gradient-to-br from-slate-950 to-slate-900"
+                ></canvas>
+              </div>
+
+              <div
+                id="pageThumbs"
+                class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3"
+              ></div>
+            </div>
+          </article>
+
+          <aside
+            class="panel-card glass-shine rounded-3xl border border-white/15 bg-slate-900/50 p-4 shadow-card backdrop-blur-md sm:p-6"
+          >
+            <h2 class="text-primary-token text-lg font-bold sm:text-xl">
+              Painel de criação
+            </h2>
+            <div
+              id="runtimeAlert"
+              class="mt-3 hidden rounded-xl border border-amber-300/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+            ></div>
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/jpeg,image/png"
+              class="hidden"
+            />
+
+            <div class="mt-4 space-y-4">
+              <div>
+                <label
+                  class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-300"
+                  >Páginas (máx 6)</label
+                >
+                <input
+                  id="pagesInput"
+                  type="number"
+                  min="1"
+                  max="6"
+                  value="4"
+                  class="panel-input w-full rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2 text-sm outline-none ring-neon/50 focus:ring"
+                />
+              </div>
+
+              <div>
+                <label
+                  class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-300"
+                  >Orientação do poster</label
+                >
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    data-orientation="vertical"
+                    class="orientation-btn rounded-xl border border-white/10 bg-neon/30 px-3 py-2 text-sm font-semibold"
+                  >
+                    Vertical
+                  </button>
+                  <button
+                    data-orientation="horizontal"
+                    class="orientation-btn rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold"
+                  >
+                    Horizontal
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div class="mb-1 flex items-center justify-between">
+                  <label
+                    class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                    >Margem (mm)</label
+                  >
+                  <span id="marginValue" class="text-xs text-cyan-200">5</span>
+                </div>
+                <input
+                  id="marginInput"
+                  class="range w-full"
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  value="5"
+                />
+              </div>
+
+              <div class="grid gap-4">
+                <div>
+                  <div class="mb-1 flex items-center justify-between">
+                    <label
+                      class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                      >Nitidez</label
+                    ><span id="sharpnessValue" class="text-xs text-cyan-200"
+                      >0</span
+                    >
+                  </div>
+                  <input
+                    id="sharpnessInput"
+                    class="range w-full"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="0"
+                  />
+                </div>
+                <div>
+                  <div class="mb-1 flex items-center justify-between">
+                    <label
+                      class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                      >Contraste</label
+                    ><span id="contrastValue" class="text-xs text-cyan-200"
+                      >100%</span
+                    >
+                  </div>
+                  <input
+                    id="contrastInput"
+                    class="range w-full"
+                    type="range"
+                    min="50"
+                    max="200"
+                    step="1"
+                    value="100"
+                  />
+                </div>
+                <div>
+                  <div class="mb-1 flex items-center justify-between">
+                    <label
+                      class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                      >Saturação</label
+                    ><span id="saturationValue" class="text-xs text-cyan-200"
+                      >100%</span
+                    >
+                  </div>
+                  <input
+                    id="saturationInput"
+                    class="range w-full"
+                    type="range"
+                    min="0"
+                    max="200"
+                    step="1"
+                    value="100"
+                  />
+                </div>
+                <div>
+                  <div class="mb-1 flex items-center justify-between">
+                    <label
+                      class="text-xs font-semibold uppercase tracking-wide text-slate-300"
+                      >Redimensionar</label
+                    ><span id="resizeValue" class="text-xs text-cyan-200"
+                      >100%</span
+                    >
+                  </div>
+                  <input
+                    id="resizeInput"
+                    class="range w-full"
+                    type="range"
+                    min="25"
+                    max="200"
+                    step="1"
+                    value="100"
+                  />
+                  <button
+                    id="resetResizeBtn"
+                    type="button"
+                    class="mt-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                  >
+                    Resetar dimensão (100%)
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2 pt-2">
+                <button
+                  id="resetBtn"
+                  class="control-button rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-bold transition hover:bg-white/10"
+                >
+                  Reset
+                </button>
+              </div>
+
+              <button
+                id="generateBtn"
+                class="w-full rounded-2xl bg-gradient-to-r from-neon to-rose px-4 py-3 text-sm font-extrabold text-white shadow-glow transition hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-neon/70"
+              >
+                Confirmar e gerar poster
+              </button>
+            </div>
+          </aside>
+        </section>
+      </section>
+
+      <section
+        id="sobre"
+        class="relative mx-auto max-w-7xl px-4 pb-8 sm:px-8 lg:px-10"
+      >
+        <div
+          class="panel-card glass-shine rounded-3xl border border-white/15 bg-slate-900/55 p-5 shadow-card backdrop-blur-md sm:p-6"
+        >
+          <h3 class="text-primary-token text-lg font-bold sm:text-xl">
+            Sobre mim
+          </h3>
+          <p class="mt-2 text-sm text-slate-300">
+            Me chamo Marcos Gabriel, e sou desenvolvedor full stack, gosto muito
+            de posters e sempre quis montar os meus, mas as ferramentas
+            existentes contém anúncios ou são pouco intuitivas, o Make Your
+            Poster veio para ser simples, fácil de usar, e ajustável, sem limite
+            de uso.
+          </p>
+        </div>
+      </section>
+
+      <section class="relative mx-auto max-w-7xl px-4 pb-16 sm:px-8 lg:px-10">
+        <div id="contato"></div>
+        <div
+          class="panel-card glass-shine rounded-3xl border border-white/15 bg-slate-900/55 p-5 shadow-card backdrop-blur-md sm:p-6"
+        >
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <h3 class="text-primary-token text-lg font-bold sm:text-xl">
+                Fale comigo
+              </h3>
+              <p class="mt-1 text-sm text-slate-300">
+                Quer parceria, melhorias ou customizações do Make Your Poster?
+              </p>
+            </div>
+            <div class="grid w-full gap-2 sm:w-auto sm:grid-cols-2">
+              <a
+                href="https://www.linkedin.com/in/marcos-gabriel-dev-fullstack"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan/40 bg-cyan/20 px-4 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan/30 focus:outline-none focus:ring-2 focus:ring-cyan/70"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M4.983 3.5c0 1.38-1.11 2.5-2.483 2.5S.017 4.88.017 3.5 1.127 1 2.5 1s2.483 1.12 2.483 2.5zM.24 8h4.52v15H.24V8zm7.24 0h4.33v2.05h.06c.6-1.14 2.07-2.35 4.26-2.35 4.56 0 5.4 3 5.4 6.89V23H17v-7.42c0-1.77-.03-4.04-2.46-4.04-2.47 0-2.85 1.93-2.85 3.91V23H7.48V8z"
+                  />
+                </svg>
+                LinkedIn
+              </a>
+              <a
+                href="https://github.com/HyperTechDevelopment/HyperTechDevelopment"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-violet-400/40 bg-violet-500/20 px-4 py-3 text-sm font-bold text-violet-100 transition hover:bg-violet-500/30 focus:outline-none focus:ring-2 focus:ring-violet-400/70"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  class="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.58 0-.29-.01-1.24-.02-2.25-3.34.73-4.04-1.42-4.04-1.42-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.39 1.24-3.23-.12-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.61-2.81 5.62-5.49 5.92.43.37.82 1.1.82 2.22 0 1.61-.01 2.9-.01 3.3 0 .32.21.69.82.57A12 12 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+                  />
+                </svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        class="relative mx-auto max-w-7xl px-4 pb-16 sm:px-8 lg:px-10"
+      >
+        <div
+          class="panel-card glass-shine rounded-3xl border border-white/15 bg-slate-900/55 p-5 shadow-card backdrop-blur-md sm:p-6"
+        >
+          <h3 class="text-primary-token text-lg font-bold sm:text-xl">FAQ</h3>
+          <div class="mt-3 space-y-3 text-sm text-slate-300">
+            <details class="rounded-xl border border-white/10 bg-white/5 p-3">
+              <summary class="cursor-pointer font-semibold text-slate-100">
+                O app envia minha imagem para servidor?
+              </summary>
+              <p class="mt-2">
+                Não. O processamento ocorre localmente no navegador.
+              </p>
+            </details>
+            <details class="rounded-xl border border-white/10 bg-white/5 p-3">
+              <summary class="cursor-pointer font-semibold text-slate-100">
+                Quantas páginas posso gerar?
+              </summary>
+              <p class="mt-2">
+                Até 6 páginas, com ajuste de margens e orientação.
+              </p>
+            </details>
+            <details class="rounded-xl border border-white/10 bg-white/5 p-3">
+              <summary class="cursor-pointer font-semibold text-slate-100">
+                Posso corrigir o crop de uma página específica?
+              </summary>
+              <p class="mt-2">
+                Sim. Selecione a página, arraste o preview e use “Desfazer
+                ajuste da página” quando necessário.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./src/js/app.js"></script>
+  </body>
+</html>
