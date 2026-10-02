@@ -89,19 +89,19 @@ async function openExportFormatPicker(defaultFormat = 'pdf') {
 
   const formatMeta = {
     jpg: {
-      icon: '🖼️',
+      icon: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>',
       title: 'JPG',
-      subtitle: 'Mais leve e rápido'
+      subtitle: 'Arquivo leve para envio rápido'
     },
     png: {
-      icon: '🎨',
+      icon: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8c4-3 11-3 14 0"/><path d="M5 16c4 3 11 3 14 0"/></svg>',
       title: 'PNG',
-      subtitle: 'Qualidade máxima'
+      subtitle: 'Fidelidade máxima de cor'
     },
     pdf: {
-      icon: '📄',
+      icon: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>',
       title: 'PDF',
-      subtitle: 'Ideal para impressão'
+      subtitle: 'Folhas A4 prontas para impressão'
     }
   };
 
@@ -280,6 +280,7 @@ function updateValueBadges() {
   el.contrastValue.textContent = `${state.contrast}%`;
   el.saturationValue.textContent = `${state.saturation}%`;
   el.resizeValue.textContent = `${state.resizePercent}%`;
+  paintAllRanges();
 }
 
 function syncInputsFromState() {
@@ -291,13 +292,27 @@ function syncInputsFromState() {
   el.resizeInput.value = String(state.resizePercent);
   updateValueBadges();
   updateOrientationButtons();
+  paintAllRanges();
 }
 
 function updateOrientationButtons() {
   el.orientationBtns.forEach((btn) => {
     const active = btn.dataset.orientation === state.orientation;
     btn.classList.toggle('bg-neon/30', active);
+    btn.classList.toggle('bg-violet-500/25', active);
+    btn.classList.toggle('border-violet-300/50', active);
     btn.classList.toggle('bg-white/5', !active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+
+function paintAllRanges() {
+  document.querySelectorAll('.range').forEach((input) => {
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 100);
+    const v = Number(input.value || 0);
+    const pct = max > min ? ((v - min) / (max - min)) * 100 : 50;
+    input.style.setProperty('--fill', pct + '%');
   });
 }
 
@@ -569,10 +584,12 @@ function renderPageSelector(defs) {
     const active = def.index === state.selectedPage;
     btn.type = 'button';
     btn.textContent = `P${def.index}`;
-    btn.className = `rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    btn.className = `rounded-xl border px-3 py-1.5 text-xs font-bold transition ${
       active
-        ? 'border-cyan/70 bg-cyan/25 text-cyan-100'
-        : 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10'
+        ? 'border-cyan-300/60 bg-cyan-400/20 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,.25)]'
+        : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
     }`;
     btn.addEventListener('click', () => {
       state.selectedPage = def.index;
@@ -654,10 +671,10 @@ function renderPageThumbs(processed, defs) {
 
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = `overflow-hidden rounded-lg border text-left transition ${
+    card.className = `overflow-hidden rounded-xl border text-left transition ${
       def.index === state.selectedPage
-        ? 'border-cyan/70 bg-cyan/10'
-        : 'border-white/10 bg-white/5 hover:bg-white/10'
+        ? 'border-cyan-300/60 bg-cyan-400/10 shadow-[0_0_22px_rgba(34,211,238,.18)]'
+        : 'border-white/10 bg-white/[.04] hover:border-white/25 hover:bg-white/[.08]'
     }`;
     card.addEventListener('click', () => {
       state.selectedPage = def.index;
@@ -686,8 +703,8 @@ function renderPageThumbs(processed, defs) {
     }
 
     const label = document.createElement('div');
-    label.className = 'px-2 py-1 text-[11px] text-slate-300';
-    label.textContent = `P${def.index} • x:${rect.offset.x} y:${rect.offset.y}`;
+    label.className = 'px-2 py-1.5 font-mono2 text-[10.5px] text-slate-400';
+    label.textContent = `P${def.index} · x:${rect.offset.x} y:${rect.offset.y}`;
 
     card.appendChild(mini);
     card.appendChild(label);
