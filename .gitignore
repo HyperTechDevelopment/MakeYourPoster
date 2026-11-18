@@ -217,6 +217,7 @@ __marimo__/
 .github/*
 !.github/workflows/
 !.github/workflows/deploy-pages.yml
+!.github/FUNDING.yml
 
 #AI
 .kilo/
