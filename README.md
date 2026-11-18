@@ -193,6 +193,4 @@ Sugestão de fluxo:
 
 ## 📄 Licença
 
-**A definir.**
-
-Se uma licença for adicionada ao repositório, esta seção deve ser atualizada para refletir o arquivo oficial.
+Distribuído sob a licença **MIT**. Veja [LICENSE](LICENSE) para o texto completo.
